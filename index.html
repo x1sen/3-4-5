@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление департаментами</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Управление департаментами</h1>
+
+    <div class="form-container">
+        <h2>Форма ввода данных</h2>
+        <form id="department-form">
+            <div id="form-fields">
+                
+                <div class="form-group">
+                    <label for="department-name">Название департамента:</label>
+                    <input type="text" id="department-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="manager-name">ФИО менеджера:</label>
+                    <input type="text" id="manager-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Телефон:</label>
+                    <input type="text" id="phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="employee-count">Количество сотрудников:</label>
+                    <input type="number" id="employee-count" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Юр. адрес:</label>
+                    <input type="text" id="address" required>
+                </div>
+                
+            </div>
+
+            <div class="button-group">
+                <button type="submit" id="add-record">Добавить запись</button>
+                <button type="button" id="clear-form">Очистить форму</button>
+                <button type="button" id="save-edit" style="display:none">Сохранить изменения</button>
+            </div>
+        </form>
+
+        <div class="delete-section">
+            <label for="department-select">Выберите ID для действий:</label>
+            <select id="department-select">
+                <option value="">-- Выберите ID --</option>
+            </select>
+            <button id="delete-record">Удалить запись</button>
+            <button id="edit-record">Редактировать запись</button>
+        </div>
+    </div>
+
+    <div class="actions-container">
+        <h2>Действия с данными</h2>
+        <div class="button-group">
+            <button id="show-managers">Показать менеджеров (max/min сотрудников)</button>
+        </div>
+
+        <div class="property-management">
+            <h3>Управление свойствами</h3>
+            <div class="property-controls">
+                <input type="text" id="new-property" placeholder="Введите название свойства">
+                <button id="add-property">Добавить свойство</button>
+                <select id="property-select">
+                    <option value="">-- Выберите свойство --</option>
+                </select>
+                <button id="remove-property">Удалить свойство</button>
+            </div>
+            <div id="property-output"></div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <h2>Таблица департаментов</h2>
+        <table id="department-table" border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>ФИО менеджера</th>
+                    <th>Телефон</th>
+                    <th>Кол-во сотрудников</th>
+                    <th>Юр. адрес</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
