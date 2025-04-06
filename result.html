@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Результаты опроса - Турагентство</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .results-container {
+      padding: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 2px solid #3498db;
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #2c3e50;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    .color-cell {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #ccc;
+    }
+
+    .highlighted {
+      background-color: #fffacd !important;
+      transition: background-color 0.3s;
+    }
+
+    .reset-filter-btn {
+      margin-left: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .reset-filter-btn:hover {
+      background-color: #d35400;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Результаты опроса туристов</h1>
+    </header>
+
+    <main class="main-content">
+      <div class="atts-block results-container">
+        <h2>История опросов</h2>
+
+        <div class="form-group">
+          <label for="previousNames">Поиск участника:</label>
+          <input list="namesList" id="previousNames" placeholder="Введите имя" oninput="filterTable(this.value)" />
+          <datalist id="namesList"></datalist>
+          <button onclick="resetFilter()" class="reset-filter-btn">Показать всех</button>
+        </div>
+
+        <table id="resultsTable">
+          <thead>
+            <tr>
+              <th>Имя</th>
+              <th>Телефон</th>
+              <th>Услуги</th>
+              <th>Цвет паспорта</th>
+              <th>Оценка</th>
+              <th>Размер группы</th>
+              <th>Дата опроса</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+       
+          </tbody>
+        </table>
+
+        <div class="window-controls">
+          <button onclick="window.close()" class="close-btn">Закрыть это окно</button>
+          <button onclick="focusOriginalWindow()" class="back-btn">Вернуться к опросу</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>© 2025 Турагентство "Путешествия"</p>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const submissions = JSON.parse(localStorage.getItem('touristSubmissions')) || [];
+      const tableBody = document.getElementById('tableBody');
+      const namesList = document.getElementById('namesList');
+
+      submissions.forEach((submission, index) => {
+        const row = document.createElement('tr');
+        row.dataset.name = submission.name.toLowerCase();
+
+        row.innerHTML = `
+          <td>${submission.name || '-'}</td>
+          <td>${submission.phone || '-'}</td>
+          <td>${formatServices(submission.services)}</td>
+          <td><div class="color-cell" style="background-color: ${submission.passportColor || '#ffffff'}"></div></td>
+          <td>${getRatingText(submission.rating)}</td>
+          <td>${submission.groupSize || '-'}</td>
+          <td>${formatDate(submission.submissionTime)}</td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+
+      const uniqueNames = [...new Set(submissions.map(s => s.name))];
+      uniqueNames.forEach(name => {
+        if (name) {
+          const option = document.createElement('option');
+          option.value = name;
+          namesList.appendChild(option);
+        }
+      });
+
+      function getRatingText(value) {
+        const ratings = {
+          '1': 'Очень плохо',
+          '2': 'Плохо',
+          '3': 'Удовлетворительно',
+          '4': 'Хорошо',
+          '5': 'Отлично',
+        };
+        return ratings[value] || '-';
+      }
+
+      function formatServices(services) {
+        if (!services) return '-';
+        return Array.isArray(services) ? services.join(', ') : services;
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        try {
+          const date = new Date(dateStr);
+          return date.toLocaleString();
+        } catch {
+          return '-';
+        }
+      }
+    });
+
+    function filterTable(name) {
+      const rows = document.querySelectorAll('#tableBody tr');
+      const searchName = name.trim().toLowerCase();
+      let found = false;
+
+      rows.forEach(row => {
+        const rowName = row.dataset.name;
+        if (!searchName || rowName.includes(searchName)) {
+          row.style.display = '';
+          row.classList.toggle('highlighted', !!searchName);
+          found = true;
+        } else {
+          row.style.display = 'none';
+          row.classList.remove('highlighted');
+        }
+      });
+
+      if (searchName && !found) {
+        alert('Участник не найден');
+      }
+    }
+
+    function resetFilter() {
+      document.getElementById('previousNames').value = '';
+      const rows = document.querySelectorAll('#tableBody tr');
+      rows.forEach(row => {
+        row.style.display = '';
+        row.classList.remove('highlighted');
+      });
+    }
+
+    function focusOriginalWindow() {
+      if (window.opener && !window.opener.closed) {
+        window.opener.focus();
+      } else {
+        alert('Окно с опросом уже закрыто');
+      }
+    }
+  </script>
+</body>
+</html>

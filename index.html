@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Опрос туриста - Турагентство</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            
+            <h1>Опрос туриста об услугах турагентства</h1>
+        </header>
+
+        <main class="main-content">
+            <div class="atts-block">
+                <div class="image-container">
+                    <img src="img/content-image.jfif" alt="Путешествия">
+                </div>
+
+                <form id="surveyForm" class="survey-form">
+                    <div class="form-group">
+                        <label for="name">Ваше имя:</label>
+                        <input type="text" id="name" name="name" required placeholder="Введите ваше имя">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Телефон:</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="+7 (XXX) XXX-XX-XX" 
+                               pattern="\+7\s?[\(]{0,1}[0-9]{3}[\)]{0,1}\s?\d{3}[-]{0,1}\d{2}[-]{0,1}\d{2}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Какие услуги вы использовали:</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="services" value="avia"> Авиабилеты</label>
+                            <label><input type="checkbox" name="services" value="hotel"> Отели</label>
+                            <label><input type="checkbox" name="services" value="tour"> Экскурсии</label>
+                            <label><input type="checkbox" name="services" value="insurance"> Страховка</label>
+                            <label><input type="checkbox" name="services" value="visa"> Визовая поддержка</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="color">Цвет вашего паспорта:</label>
+                        <input type="color" id="color" name="passportColor" value="#0000ff">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Оцените качество услуг:</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="rating" value="5" required> Отлично</label>
+                            <label><input type="radio" name="rating" value="4"> Хорошо</label>
+                            <label><input type="radio" name="rating" value="3"> Удовлетворительно</label>
+                            <label><input type="radio" name="rating" value="2"> Плохо</label>
+                            <label><input type="radio" name="rating" value="1"> Очень плохо</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="groupSize">Количество человек в группе:</label>
+                        <input type="number" id="groupSize" name="groupSize" min="1" max="50" step="1" value="1">
+                    </div>
+
+                    <input type="hidden" id="submissionTime" name="submissionTime">
+
+                    <div class="form-group">
+                        <button type="submit" class="submit-btn">Отправить</button>
+                        <button type="reset" class="reset-btn">Сбросить</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>© 2025 Турагентство "Путешествия"</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
