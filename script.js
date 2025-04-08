@@ -20,7 +20,7 @@ class Department {
 
 let departments = JSON.parse(localStorage.getItem('departments')) || [];
 let currentEditId = null;
-
+let historyLog = JSON.parse(localStorage.getItem('historyLog')) || [];
 
 departments = departments.map(dept => {
     const department = new Department(
@@ -41,6 +41,61 @@ function generateId() {
     return departments.length ? Math.max(...departments.map(dep => dep.id)) + 1 : 1;
 }
 
+function updateHistory(action, id, details = null) {
+    let entry = {
+        action,
+        id,
+        details
+    };
+    
+    historyLog.unshift(entry);
+    localStorage.setItem('historyLog', JSON.stringify(historyLog));
+    renderHistory();
+}
+
+function renderHistory() {
+    const historyContainer = document.getElementById('history-log');
+    historyContainer.innerHTML = '';
+    
+    if (historyLog.length === 0) {
+        historyContainer.innerHTML = '<div class="history-entry">История изменений пуста</div>';
+        return;
+    }
+    
+    // Отображаем от старых к новым
+    const reversedHistory = [...historyLog].reverse();
+    
+    reversedHistory.forEach(entry => {
+        const entryDiv = document.createElement('div');
+        entryDiv.className = 'history-entry';
+        
+        let message = '';
+        switch(entry.action) {
+            case 'add':
+                message = `Добавлена новая запись с ID ${entry.id}`;
+                break;
+            case 'edit':
+                message = `Запись с ID ${entry.id} была изменена`;
+                break;
+            case 'delete':
+                message = `Запись с ID ${entry.id} была удалена`;
+                break;
+            case 'property_add':
+                message = `Добавлено новое свойство: ${entry.details}`;
+                break;
+            case 'property_remove':
+                message = `Удалено свойство: ${entry.details}`;
+                break;
+            default:
+                message = `Неизвестное действие`;
+        }
+        
+        entryDiv.textContent = message;
+        historyContainer.appendChild(entryDiv);
+    });
+}
+
+
 function renderTable() {
     const tbody = document.querySelector("#department-table tbody");
     tbody.innerHTML = '';
@@ -58,7 +113,6 @@ function renderTable() {
         </tr>
     `;
     
-    
     if (departments.length > 0) {
         const headerRow = thead.querySelector('tr');
         Object.keys(departments[0].additionalProperties).forEach(prop => {
@@ -67,22 +121,18 @@ function renderTable() {
             headerRow.appendChild(th);
         });
         
-        
         const actionsTh = document.createElement('th');
         actionsTh.textContent = 'Действия';
         headerRow.appendChild(actionsTh);
     } else {
-        
         const headerRow = thead.querySelector('tr');
         const actionsTh = document.createElement('th');
         actionsTh.textContent = 'Действия';
         headerRow.appendChild(actionsTh);
     }
 
-    
     departments.forEach(dep => {
         const row = document.createElement('tr');
-        
         
         row.innerHTML = `
             <td>${dep.id}</td>
@@ -93,13 +143,11 @@ function renderTable() {
             <td>${dep.address}</td>
         `;
         
-        
         Object.values(dep.additionalProperties).forEach(value => {
             const td = document.createElement('td');
             td.textContent = value;
             row.appendChild(td);
         });
-        
         
         const actionsTd = document.createElement('td');
         actionsTd.innerHTML = `
@@ -182,7 +230,6 @@ function saveEditedDepartment() {
     const departmentIndex = departments.findIndex(dep => dep.id === currentEditId);
     if (departmentIndex === -1) return;
     
-    
     const updatedDepartment = {
         id: currentEditId,
         name: document.getElementById("department-name").value,
@@ -193,7 +240,6 @@ function saveEditedDepartment() {
         additionalProperties: {...departments[departmentIndex].additionalProperties}
     };
     
-    
     Object.keys(updatedDepartment.additionalProperties).forEach(prop => {
         const input = document.querySelector(`#prop-${prop}`);
         if (input) {
@@ -201,13 +247,10 @@ function saveEditedDepartment() {
         }
     });
     
-    
     departments[departmentIndex] = updatedDepartment;
-    
-    
     localStorage.setItem('departments', JSON.stringify(departments));
+    updateHistory('edit', currentEditId);
     renderTable();
-    
     
     document.getElementById("department-form").reset();
     document.getElementById("add-record").style.display = 'inline-block';
@@ -226,6 +269,7 @@ function removeDepartment(id) {
     if (confirm("Вы уверены, что хотите удалить эту запись?")) {
         departments = departments.filter(dep => dep.id !== id);
         localStorage.setItem('departments', JSON.stringify(departments));
+        updateHistory('delete', id);
         renderTable();
     }
 }
@@ -246,6 +290,7 @@ function addProperty() {
     
     departments.forEach(dep => dep.addProperty(propertyName));
     localStorage.setItem('departments', JSON.stringify(departments));
+    updateHistory('property_add', null, propertyName);
     
     output.innerHTML = `Добавлено новое свойство: <strong>${propertyName}</strong>`;
     document.getElementById("new-property").value = "";
@@ -263,6 +308,7 @@ function removeProperty() {
     if (confirm(`Вы уверены, что хотите удалить свойство "${propertyName}"?`)) {
         departments.forEach(dep => dep.removeProperty(propertyName));
         localStorage.setItem('departments', JSON.stringify(departments));
+        updateHistory('property_remove', null, propertyName);
         
         document.getElementById("property-output").innerHTML = 
             `Удалено свойство: <strong>${propertyName}</strong>`;
@@ -271,6 +317,29 @@ function removeProperty() {
     }
 }
 
+function setupSearch() {
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.id = 'search-input';
+    searchInput.placeholder = 'Поиск по департаментам...';
+    
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'search-container';
+    searchContainer.appendChild(searchInput);
+    
+    const tableContainer = document.querySelector('.table-container');
+    tableContainer.insertBefore(searchContainer, tableContainer.firstChild);
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#department-table tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+}
 
 document.getElementById("department-form").addEventListener("submit", function(e) {
     e.preventDefault();
@@ -298,6 +367,7 @@ document.getElementById("department-form").addEventListener("submit", function(e
     
     departments.push(newDept);
     localStorage.setItem('departments', JSON.stringify(departments));
+    updateHistory('add', newDept.id);
     renderTable();
     this.reset();
 });
@@ -362,7 +432,16 @@ document.getElementById("show-managers").addEventListener("click", function() {
 document.getElementById("add-property").addEventListener("click", addProperty);
 document.getElementById("remove-property").addEventListener("click", removeProperty);
 
+document.getElementById('clear-history').addEventListener('click', function() {
+    if (confirm('Вы уверены, что хотите очистить историю изменений?')) {
+        historyLog = [];
+        localStorage.removeItem('historyLog');
+        renderHistory();
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     renderTable();
+    renderHistory();
+    setupSearch();
 });

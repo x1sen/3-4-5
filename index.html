@@ -51,7 +51,7 @@
         <div class="delete-section">
             <label for="department-select">Выберите ID для действий:</label>
             <select id="department-select">
-                <option value="">-- Выберите ID --</option>
+                <option value=""> Выберите ID </option>
             </select>
             <button id="delete-record">Удалить запись</button>
             <button id="edit-record">Редактировать запись</button>
@@ -70,7 +70,7 @@
                 <input type="text" id="new-property" placeholder="Введите название свойства">
                 <button id="add-property">Добавить свойство</button>
                 <select id="property-select">
-                    <option value="">-- Выберите свойство --</option>
+                    <option value=""> Выберите свойство </option>
                 </select>
                 <button id="remove-property">Удалить свойство</button>
             </div>
@@ -94,6 +94,12 @@
             </thead>
             <tbody></tbody>
         </table>
+    </div>
+
+    <div class="history-container">
+        <h2>История изменений</h2>
+        <div id="history-log"></div>
+        <button id="clear-history">Очистить историю</button>
     </div>
 
     <script src="script.js"></script>
